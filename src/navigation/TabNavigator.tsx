@@ -7,6 +7,7 @@ import { HomeTabParamList } from './types';
 import TeamsScreen from '../screens/TeamsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import { StatisticsScreen } from '../screens/StatisticsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -24,8 +25,8 @@ export const TabNavigator = () => {
             case 'Teams':
               iconName = 'users';
               break;
-            case 'Profile':
-              iconName = 'user';
+            case 'Dashboard':
+              iconName = 'layers';
               break;
             case 'Settings':
               iconName = 'settings';
@@ -50,9 +51,9 @@ export const TabNavigator = () => {
         options={{ title: 'Equipos' }}
       />
       <Tab.Screen 
-        name="Profile" 
-        component={ProfileScreen}
-        options={{ title: 'Perfil' }}
+        name="Dashboard" 
+        component={StatisticsScreen}
+        options={{ title: 'Estadisticas' }}
       />
       <Tab.Screen 
         name="Settings" 

@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TabNavigator } from './src/navigation/TabNavigator';
 import { RootStackParamList } from './src/navigation/types';
 import { StyleSheet } from 'react-native';
-import LoginScreen from './src/screens/LoginScreen';
+import { LoginScreen } from './src/screens/LoginScreen';
 
 const Stack = createNativeStackNavigator();
 

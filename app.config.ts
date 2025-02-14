@@ -15,7 +15,7 @@ const getEnvironment = () => {
 // Configuraciones específicas por ambiente
 const envConfig = {
   [Environment.DEVELOPMENT]: {
-    apiUrl: 'http://localhost:3000',
+    apiUrl: 'https://consult-board-api-production.up.railway.app',
     apiKey: 'dev_key_123',
     enableLogs: true,
     storageKeyPrefix: 'dev_',
@@ -44,12 +44,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: config.slug || 'consulting-app',
     version: '1.0.0',
     orientation: 'portrait',
-    icon: './assets/icon.png',
+    icon: './assets/icons/icon-192x192.png',
     userInterfaceStyle: 'light',
     splash: {
-      image: './assets/splash.png',
+      image: './assets/Logo.png',
       resizeMode: 'contain',
-      backgroundColor: '#ffffff'
+      // backgroundColor: '#ffffff'
     },
     updates: {
       fallbackToCacheTimeout: 0
@@ -63,7 +63,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: './assets/adaptive-icon.png',
+        foregroundImage: './assets/Logo.png',
         backgroundColor: '#FFFFFF'
       },
       package: `com.rpccode.consultingApp${env !== Environment.PRODUCTION ? `.${env}` : ''}`

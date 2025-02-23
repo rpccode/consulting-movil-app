@@ -1,85 +1,81 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Task } from "../../types/types";
+import { getDependencyColor, getPriority, getPriorityColor, getProgressColor } from "../helpers";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const getPriorityColor = (priority: number) => {
-  switch (priority) {
-    case 1:
-      return '#FF4B4B';
-    case 2:
-      return '#FFA726';
-    case 3:
-      return '#4CAF50';
-    default:
-      return '#757575';
+
+
+
+export const TaskCard = ({ task, onPress }: { task: Task; onPress: () => void }) => {
+  const getStatusIcon = () => {
+    if (task.completed) {
+      return <MaterialCommunityIcons name="check-circle" size={24} color="#4CAF50" />
+    } else if (task.inProgress) {
+      return <MaterialCommunityIcons name="progress-clock" size={24} color="#2196F3" />
+    } else if (task.toDo) {
+      return <MaterialCommunityIcons name="clipboard-text-outline" size={24} color="#FFA000" />
+    }
+    return null
   }
-};
 
-const getProgressColor = (progress: number) => {
-  if (progress >= 75) return '#4CAF50';
-  if (progress >= 50) return '#FFA726';
-  if (progress >= 25) return '#FF9800';
-  return '#FF4B4B';
-};
-
-export const TaskCard = ({ task, onPress }: { task: Task; onPress: () => void }) => (
-  <TouchableOpacity style={styles.taskCard} onPress={onPress}>
-    <View style={styles.taskHeader}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.taskTitle}>{task.title}</Text>
-        <View
-          style={[
-            styles.priorityBadge,
-            { backgroundColor: getPriorityColor(task.priority) },
-          ]}
-        >
-          <Text style={styles.priorityText}>{task.priority}</Text>
+  return (
+    <TouchableOpacity style={styles.taskCard} onPress={onPress}>
+      <View style={styles.taskHeader}>
+        <View style={styles.titleContainer}>
+          <View style={styles.statusIconContainer}>{getStatusIcon()}</View>
+          <Text style={styles.taskTitle}>{task.title}</Text>
+          <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(task.priority) }]}>
+            <Text style={styles.priorityText}>{getPriority(task.priority)}</Text>
+          </View>
+        </View>
+        <View style={styles.clientContainer}>
+          <Text style={styles.label}>Cliente</Text>
+          <Text style={styles.clientName}>{task.client}</Text>
         </View>
       </View>
-      <View style={styles.clientContainer}>
-        <Text style={styles.label}>Cliente</Text>
-        <Text style={styles.clientName}>{task.client}</Text>
-      </View>
-    </View>
 
-    <View style={styles.progressContainer}>
-      <View style={styles.progressInfo}>
-        <Text style={styles.label}>Progreso</Text>
-        <Text style={[styles.progressText, { color: getProgressColor(task.progress) }]}>
-          {task.progress}%
-        </Text>
+      <View style={styles.progressContainer}>
+        <View style={styles.progressInfo}>
+          <Text style={styles.label}>Progreso</Text>
+          <Text style={[styles.progressText, { color: getProgressColor(task.progress) }]}>{task.progress}%</Text>
+        </View>
+        <View style={styles.progressBar}>
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${task.progress}%`,
+                backgroundColor: getProgressColor(task.progress),
+              },
+            ]}
+          />
+        </View>
       </View>
-      <View style={styles.progressBar}>
-        <View
-          style={[
-            styles.progressFill,
-            {
-              width: `${task.progress}%`,
-              backgroundColor: getProgressColor(task.progress),
-            },
-          ]}
-        />
-      </View>
-    </View>
 
-    {task.dependencies && task.dependencies.length > 0 && (
-      <View style={styles.dependenciesContainer}>
-        <Text style={styles.label}>Dependencias</Text>
-        <View style={styles.dependenciesList}>
-          {task.dependencies.map((dep, index) => (
-            <View key={index} style={styles.dependencyItem}>
-              <View style={styles.dependencyBadge}>
-                <Text style={styles.dependencyType}>{dep.type}</Text>
+      {task.dependencies && task.dependencies.length > 0 && (
+        <View style={styles.dependenciesContainer}>
+          <Text style={styles.label}>Dependencias</Text>
+          <View style={styles.dependenciesList}>
+            {task.dependencies.map((dep, index) => (
+              <View key={index} style={styles.dependencyItem}>
+                <View style={styles.dependencyBadge}>
+                  <Text style={styles.dependencyType}>{dep.type}</Text>
+                </View>
+                <Text style={{...styles.priorityBadge,color:'white',backgroundColor:getDependencyColor(dep.status)}}>{dep.status}</Text>
               </View>
-              <Text style={styles.dependencyStatus}>{dep.status}</Text>
-            </View>
-          ))}
+            ))}
+          </View>
         </View>
-      </View>
-    )}
-  </TouchableOpacity>
-);
+      )}
+    </TouchableOpacity>
+  )
+}
+
 
 const styles = StyleSheet.create({
+  statusIconContainer: {
+    marginRight: 8,
+  },
   taskCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -101,7 +97,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   taskTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: "#1A1A1A",
     flex: 1,

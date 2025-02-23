@@ -19,6 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { config } from "../config/env"
 import { logger } from "../../utils/logger"
 import { Ionicons } from "@expo/vector-icons"
+import { useAuthStore } from "../store/authStore"
 
 interface LoginScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, "Auth">
@@ -29,6 +30,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const {setUser,setToken} = useAuthStore()
 
   const validateForm = (): boolean => {
     if (!username.trim()) {
@@ -60,11 +62,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       })
 
       const data = await response.json()
+      console.log(data)
 
       if (!response.ok) {
         throw new Error(data.message || "Error de autenticación")
       }
 
+      setUser(data.user)
+      setToken(data.access_token)
       await AsyncStorage.setItem(`${config.storageKeyPrefix}token`, data.access_token)
       await AsyncStorage.setItem(`${config.storageKeyPrefix}user`, JSON.stringify(data.user))
 
@@ -81,6 +86,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const handleForgotPassword = () => {
     Alert.alert("Recuperar contraseña", "Por favor contacta al administrador del sistema")
   }
+
+  
 
   return (
     <AuthLayout>

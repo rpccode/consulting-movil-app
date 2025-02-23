@@ -1,29 +1,42 @@
 {
   "expo": {
-    "name": "consulting-movil-app",
+    "name": "Tablero",
     "slug": "consulting-app",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Light.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/splash-icon-dark.png",
+      "resizeMode": "contain"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rpccode.consultingApp.development",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.rpccode.consultingApp.development"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "owner": "rapccode"
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD",
+      "url": "https://u.expo.dev/faa41b08-88f2-4d6d-be65-671d4c2663c1"
+    },
+    "owner": "rapccode",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    }
   }
 }

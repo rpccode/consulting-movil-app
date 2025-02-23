@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,13 +11,17 @@ import {
   RefreshControl,
 } from "react-native";
 import { HomeLayout } from "../layouts/HomeLayout";
-import { ConfigSettings, Employee, Task } from "../../types/types";
+import { ConfigSettings, Employee, Task, User } from "../../types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TaskService } from "../services/TaskService";
 import { logger } from "../../utils/logger";
 import { EmployeeService } from "../services/EmployeeService";
 import { TaskCard } from "../components/TaskCard";
 import { TaskModal } from "../components/TaskModal";
+import { getPriority, getStatus } from "../helpers";
+import { useEmployeeStore } from "../store/EmployeeStore";
+import { AuthServices } from "../services/authServices";
+import { useAuthStore } from "../store/authStore";
 
 export const STORAGE_KEYS = {
   TASKS: "@tasks",
@@ -26,9 +30,15 @@ export const STORAGE_KEYS = {
   WORK_WEEKS: "@work_weeks",
 };
 
-const PRIORITY_OPTIONS = ["Todas", "Alta", "Media", "Baja"];
+const PRIORITY_OPTIONS = [
+  "Todas",
+  "Critica",
+  "Alta",
+  "Media",
+  "Normal",
+  "Baja",
+];
 const STATUS_OPTIONS = ["Todos", "Pendiente", "En Progreso", "Completado"];
-
 
 const defaultConfig: ConfigSettings = {
   workingHoursPerDay: 8,
@@ -40,8 +50,9 @@ const defaultConfig: ConfigSettings = {
 };
 
 export const TasksScreen = () => {
+  const { Employees, setEmployees, addEmployee } = useEmployeeStore();
+  const {user} = useAuthStore()
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [config, setConfig] = useState<ConfigSettings>(defaultConfig);
@@ -53,50 +64,19 @@ export const TasksScreen = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-
-
-
   const loadData = async () => {
     try {
+  
       setLoading(true);
-      const [employeesData] = await Promise.all([
-        // TaskService.getTasks(),
-        EmployeeService.getEmployees(),
-        // TaskService.getConfig()
-      ]);
-
-      // setTasks(tasksData);
-      setEmployees(employeesData);
-      // setConfig(configData);
-
-      // Cache the data locally
-      await Promise.all([
-        // AsyncStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasksData)),
-        AsyncStorage.setItem(
-          STORAGE_KEYS.EMPLOYEES,
-          JSON.stringify(employeesData)
-        ),
-        // AsyncStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(configData))
-      ]);
-    } catch (error) {
-      // If API fails, try to load from cache
-      logger.debug("Error al optener los datos", error);
-      try {
-        const [cachedEmployees] = await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEYS.EMPLOYEES),
-        ]);
-
-        // if (cachedTasks) setTasks(JSON.parse(cachedTasks));
-        if (cachedEmployees) setEmployees(JSON.parse(cachedEmployees));
-        // if (cachedConfig) setConfig(JSON.parse(cachedConfig));
-
-        Alert.alert(
-          "Conexión fallida",
-          "Usando datos almacenados localmente. Por favor, verifica tu conexión a internet."
-        );
-      } catch (cacheError) {
-        Alert.alert("Error", "No se pudieron cargar los datos");
+      if (user.role?.name === "admin") {
+        const data = await EmployeeService.getEmployees();
+        setEmployees(data);
+      } else {
+        const data = await EmployeeService.getEmployees();
+        addEmployee(data);
       }
+    } catch (error) {
+      logger.debug("Error al obtener los empleados", error);
     } finally {
       setLoading(false);
     }
@@ -114,24 +94,26 @@ export const TasksScreen = () => {
 
   const updateTaskStatus = async (taskId: string, status: string) => {
     try {
+      // logger.debug("Actualizando tarea", taskId, status);
       const updatedTask = await TaskService.updateTask(taskId, {
         status,
-        progress: status === "completed" ? 100 : undefined,
+        progress: status === "completed" ? 100 : 0,
         completionDate:
-          status === "completed" ? new Date().toISOString() : undefined,
+          status === "completed" ? new Date().toISOString() : '',
         completed: status === "completed" ? true : false,
+        toDo: status === "completed" && false ,
+        inProgress: status === "completed" && false,
       });
 
       const updatedTasks = tasks.map((task) =>
         task.id === taskId ? updatedTask : task
       );
+      logger.debug("Tarea actualizada", updatedTask);
 
       setTasks(updatedTasks);
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.TASKS,
-        JSON.stringify(updatedTasks)
-      );
+      setModalVisible(false);
     } catch (error) {
+      logger.debug("Error al actualizar la tarea", error);
       Alert.alert("Error", "No se pudo actualizar la tarea");
     }
   };
@@ -144,94 +126,10 @@ export const TasksScreen = () => {
     );
   };
 
-  const renderTask = (task: Task) => (
-    <TouchableOpacity
-      key={task.id}
-      style={styles.taskCard}
-      onPress={() => {
-        setSelectedTask(task);
-        setModalVisible(true);
-      }}
-    >
-      <View style={styles.taskHeader}>
-        <Text style={styles.taskTitle}>{task.title}</Text>
-        <Text style={styles.taskPriority}>Prioridad: {task.priority}</Text>
-      </View>
-      <Text style={styles.taskClient}>Cliente: {task.client}</Text>
-      <View style={styles.progressBar}>
-        <View style={[styles.progressFill, { width: `${task.progress}%` }]} />
-      </View>
-      <Text style={styles.progressText}>{task.progress}%</Text>
-
-      {task.dependencies && task.dependencies.length > 0 && (
-        <View style={styles.dependenciesContainer}>
-          <Text style={styles.dependenciesTitle}>Dependencias:</Text>
-          {task.dependencies.map((dep, index) => (
-            <Text key={index} style={styles.dependencyItem}>
-              {dep.type}: {dep.status}
-            </Text>
-          ))}
-        </View>
-      )}
-    </TouchableOpacity>
-  );
-
-  const renderTaskModal = () => (
-    <Modal
-      visible={modalVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={() => setModalVisible(false)}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          {selectedTask && (
-            <>
-              <Text style={styles.modalTitle}>{selectedTask.title}</Text>
-              <Text>Cliente: {selectedTask.client}</Text>
-              <Text>Prioridad: {selectedTask.priority}</Text>
-              <Text>Progreso: {selectedTask.progress}%</Text>
-
-              {selectedTask.dependencies && (
-                <View style={styles.modalDependencies}>
-                  <Text style={styles.modalSubtitle}>Dependencias:</Text>
-                  {selectedTask.dependencies.map((dep, index) => (
-                    <View key={index} style={styles.dependencyCard}>
-                      <Text>Tipo: {dep.type}</Text>
-                      <Text>Estado: {dep.status}</Text>
-                      <Text>
-                        Fecha límite:{" "}
-                        {new Date(dep.endDate).toLocaleDateString()}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => updateTaskStatus(selectedTask.id, "completed")}
-                >
-                  <Text style={styles.buttonText}>Completar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.button, styles.closeButton]}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={styles.buttonText}>Cerrar</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
-        </View>
-      </View>
-    </Modal>
-  );
   // Rest of your existing component code (renderTask, renderTaskModal, etc.)
-  const filteredTasks = employees
+  const filteredTasks = (Employees ?? [])
     .flatMap((employee) =>
-      employee.tasks.map((task) => ({
+      (employee.tasks ?? []).map((task) => ({
         ...task,
         employeeName: employee.name,
         employeeId: employee.id,
@@ -239,42 +137,45 @@ export const TasksScreen = () => {
     )
     .filter((task) => {
       const matchesPriority =
-        selectedPriority === "Todas" || task.priority === selectedPriority;
+        selectedPriority === "Todas" ||
+        getPriority(task.priority) === selectedPriority;
       const matchesStatus =
-        selectedStatus === "Todos" || task.status === selectedStatus;
+        selectedStatus === "Todos" || getStatus(task) === selectedStatus;
       const matchesEmployee =
         !selectedEmployee || task.employeeId === selectedEmployee;
       const matchesSearch =
         searchQuery === "" ||
         task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        task.client.toLowerCase().includes(searchQuery.toLowerCase());
+        task.client?.toLowerCase().includes(searchQuery.toLowerCase());
 
-      return matchesPriority && matchesStatus && matchesEmployee && matchesSearch;
+      return (
+        matchesPriority && matchesStatus && matchesEmployee && matchesSearch
+      );
     });
-  const FilterButton = ({ 
-    label, 
-    isSelected, 
-    onPress 
-  }: { 
-    label: string; 
-    isSelected: boolean; 
+
+  const FilterButton = ({
+    label,
+    isSelected,
+    onPress,
+  }: {
+    label: string;
+    isSelected: boolean;
     onPress: () => void;
   }) => (
     <TouchableOpacity
       style={[styles.filterButton, isSelected && styles.filterButtonSelected]}
       onPress={onPress}
     >
-      <Text style={[styles.filterButtonText, isSelected && styles.filterButtonTextSelected]}>
+      <Text
+        style={[
+          styles.filterButtonText,
+          isSelected && styles.filterButtonTextSelected,
+        ]}
+      >
         {label}
       </Text>
     </TouchableOpacity>
   );
-
-
-
-
-
-
 
   return (
     <HomeLayout>
@@ -285,8 +186,8 @@ export const TasksScreen = () => {
         </View>
 
         <View style={styles.filtersContainer}>
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.filterScrollView}
           >
@@ -326,7 +227,7 @@ export const TasksScreen = () => {
                   isSelected={selectedEmployee === null}
                   onPress={() => setSelectedEmployee(null)}
                 />
-                {employees.map((employee) => (
+                {Employees.map((employee) => (
                   <FilterButton
                     key={employee.id}
                     label={employee.name}
@@ -357,7 +258,9 @@ export const TasksScreen = () => {
               </Text>
             </View>
           ) : (
-            filteredTasks.map((task) => (
+            filteredTasks
+            .sort((a, b) => Number(a.priority) - Number(b.priority)) // Convertir a número para comparar correctamente
+            .map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}

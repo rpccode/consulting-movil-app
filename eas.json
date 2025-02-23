@@ -1,31 +1,51 @@
 {
-    "cli": {
-      "version": ">= 0.52.0"
+  "cli": {
+    "version": ">= 0.52.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development",
+      "env": {
+        "APP_ENV": "development"
+      },
+      "android": {
+        "buildType": "apk"
+        // "applicationArchivePath": "dist/ConsultingApp-Dev-v1.0.1.apk"
+      }
     },
-    "build": {
-      "development": {
-        "developmentClient": true,
-        "distribution": "internal",
-        "env": {
-          "APP_ENV": "development"
-        },
-        "android": {
-        "buildType": "apk"
-      }
+    "staging": {
+      "distribution": "internal",
+      "env": {
+        "APP_ENV": "staging"
+        // "artifactPath": "dist/ConsultingApp-sta-v1.0.1.apk"
       },
-      "staging": {
-        "distribution": "internal",
-        "env": {
-          "APP_ENV": "staging"
-        }
+      "channel": "staging"
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "APP_ENV": "production"
       },
-      "production": {
-        "env": {
-          "APP_ENV": "production"
-        },
-        "android": {
+      "channel": "production",
+      "android": {
         "buildType": "apk"
+        // "applicationArchivePath": "dist/ConsultingApp-v1.0.1.apk"
       }
+    },
+    "preview": {  // 👈 Agrega este perfil si falta
+      "distribution": "internal",
+      "env": {
+        "APP_ENV": "development"
+      },
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+        // "applicationArchivePath": "dist/ConsultingApp-prev-v1.0.1.apk"
       }
     }
+  
   }
+}

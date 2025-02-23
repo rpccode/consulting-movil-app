@@ -1,4 +1,3 @@
-import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TasksScreen } from '../screens/TasksScreen';
 
@@ -6,14 +5,15 @@ import { Feather } from '@expo/vector-icons';
 import { HomeTabParamList } from './types';
 import TeamsScreen from '../screens/TeamsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import SettingsScreen from '../screens/SettingsScreen';
 import { StatisticsScreen } from '../screens/StatisticsScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
+import DependencysScreen from '../screens/DependencysScreen';
 
 const Tab = createBottomTabNavigator();
 
 export const TabNavigator = () => {
   return (
-    <Tab.Navigator
+    <Tab.Navigator id={undefined}
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: any;
@@ -23,7 +23,7 @@ export const TabNavigator = () => {
               iconName = 'list';
               break;
             case 'Teams':
-              iconName = 'users';
+              iconName = 'git-pull-request';
               break;
             case 'Dashboard':
               iconName = 'layers';
@@ -47,8 +47,8 @@ export const TabNavigator = () => {
       />
       <Tab.Screen 
         name="Teams" 
-        component={TeamsScreen}
-        options={{ title: 'Equipos' }}
+        component={DependencysScreen}
+        options={{ title: 'Dependencias' }}
       />
       <Tab.Screen 
         name="Dashboard" 

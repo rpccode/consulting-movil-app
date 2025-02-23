@@ -11,16 +11,7 @@
  | "IMPLEMENTACIÓN";
  
  // Nueva estructura para manejar dependencias externas con fechas
- export interface ExternalDependency {
- id?: string;
- type: ExternalDependencyType;
- status: "pendiente" | "completado" | "en proceso"; // Estado de la dependencia
- comment?: string; // Comentario opcional sobre la dependencia
- startDate: string; // Fecha en que inicia la dependencia
- endDate: string; // Fecha límite para la dependencia
- createdAt: string; // Fecha en que se creó la dependencia
- updatedAt?: string; // Última modificación de la dependencia
- }
+ 
   
   export interface WorkWeek {
    id: string;
@@ -46,13 +37,16 @@
    completed: boolean
  }
  
- export const entyTask:Task = {
-   id: "",
-   priority: 0,
-   title: "",
-   client: "",
-   progress: 0
- }
+ export interface ExternalDependency {
+  id?: string;
+  type: ExternalDependencyType;
+  status: "pendiente" | "completado" | "en proceso"; // Estado de la dependencia
+  comment?: string; // Comentario opcional sobre la dependencia
+  startDate: string; // Fecha en que inicia la dependencia
+  endDate: string; // Fecha límite para la dependencia
+  createdAt: string; // Fecha en que se creó la dependencia
+  updatedAt?: string; // Última modificación de la dependencia
+  }
  
  export interface Task {
    id: string
@@ -85,6 +79,14 @@
    workWeek?: WorkWeek,
    dependencies?: ExternalDependency[];
  }
+
+ export const entyTask:Task = {
+  id: "",
+  priority: 0,
+  title: "",
+  client: "",
+  progress: 0
+}
  
  export interface Team {
    id:string,

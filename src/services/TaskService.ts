@@ -1,4 +1,5 @@
 import { ConfigSettings, Employee, Task } from "../../types/types";
+import { logger } from "../../utils/logger";
 import api from "../config/Api";
 
 export const TaskService = {
@@ -13,7 +14,8 @@ export const TaskService = {
   },
 
   async updateTask(taskId: string, updates: Partial<Task>): Promise<Task> {
-    const response = await api.patch(`/tasks/${taskId}`, updates);
+    const response = await api.put(`/tasks/${taskId}`, updates);
+    // logger.debug(`TaskService.updateTask: ${JSON.stringify(response.data)}`);
     return response.data;
   }
 };

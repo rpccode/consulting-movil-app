@@ -41,16 +41,18 @@ export const TaskManagement = ({ employees }: { employees: Employee[] }) => {
             <Text style={styles.loadingText}>Cargando tareas...</Text>
           ) : (
             employees.map((employee) =>
-              employee.tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onPress={() => {
-                    setSelectedTask(task)
-                    setModalVisible(true)
-                  }}
-                />
-              )),
+              employee.tasks
+            .sort((a, b) => Number(b.priority) - Number(a.priority))
+                .map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onPress={() => {
+                      setSelectedTask(task);
+                      setModalVisible(true);
+                    }}
+                  />
+                ))
             )
           )}
         </ScrollView>

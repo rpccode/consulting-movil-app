@@ -42,17 +42,23 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: `${config.name}${env === Environment.DEVELOPMENT ? ' (Dev)' : env === Environment.STAGING ? ' (Staging)' : ''}`,
     slug: config.slug || 'consulting-app',
-    version: '1.0.0',
+    version: '1.0.2',
     orientation: 'portrait',
-    icon: './assets/icons/icon-192x192.png',
+    icon: './assets/Light.png',
     userInterfaceStyle: 'light',
     splash: {
-      image: './assets/Logo.png',
+      image: './assets/splash-icon-dark.png',
       resizeMode: 'contain',
-      // backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff'
     },
     updates: {
-      fallbackToCacheTimeout: 0
+      enabled: true,
+      checkAutomatically: 'ON_LOAD',
+      fallbackToCacheTimeout: 0,
+       url: "https://u.expo.dev/faa41b08-88f2-4d6d-be65-671d4c2663c1"
+    },
+    runtimeVersion: {
+      policy: "appVersion"
     },
     assetBundlePatterns: [
       '**/*'
@@ -63,7 +69,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: './assets/Logo.png',
+        foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#FFFFFF'
       },
       package: `com.rpccode.consultingApp${env !== Environment.PRODUCTION ? `.${env}` : ''}`
@@ -74,6 +80,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       eas: {
         projectId: "faa41b08-88f2-4d6d-be65-671d4c2663c1"
       }
-    }
+    },
+    
+    
   };
+  
 };

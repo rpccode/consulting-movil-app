@@ -71,6 +71,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       setUser(data.user)
       setToken(data.access_token)
       await AsyncStorage.setItem(`${config.storageKeyPrefix}token`, data.access_token)
+      await AsyncStorage.setItem(`${config.storageKeyPrefix}sessionId`, data.session_id)
       await AsyncStorage.setItem(`${config.storageKeyPrefix}user`, JSON.stringify(data.user))
 
       logger.info("Login exitoso:", username)

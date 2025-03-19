@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from "react-native"
-import { Task } from "../../types/types"
+import { View, Text, TouchableOpacity, Modal, StyleSheet } from "react-native";
+import { Task } from "../../types/types";
 
 export const TaskModal = ({
   visible,
@@ -7,12 +7,17 @@ export const TaskModal = ({
   onClose,
   onComplete,
 }: {
-  visible: boolean
-  task: Task | null
-  onClose: () => void
-  onComplete: (taskId: string) => void
+  visible: boolean;
+  task: Task | null;
+  onClose: () => void;
+  onComplete: (taskId: string) => void;
 }) => (
-  <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+  <Modal
+    visible={visible}
+    animationType="slide"
+    transparent={true}
+    onRequestClose={onClose}
+  >
     <View style={styles.modalContainer}>
       <View style={styles.modalContent}>
         {task && (
@@ -21,6 +26,7 @@ export const TaskModal = ({
             <Text>Cliente: {task.client}</Text>
             <Text>Prioridad: {task.priority}</Text>
             <Text>Progreso: {task.progress}%</Text>
+            <Text>Comentario: {task.comment}</Text>
 
             {task.dependencies && (
               <View style={styles.modalDependencies}>
@@ -29,17 +35,25 @@ export const TaskModal = ({
                   <View key={index} style={styles.dependencyCard}>
                     <Text>Tipo: {dep.type}</Text>
                     <Text>Estado: {dep.status}</Text>
-                    <Text>Fecha límite: {new Date(dep.endDate).toLocaleDateString()}</Text>
+                    <Text>
+                      Fecha límite: {new Date(dep.endDate).toLocaleDateString()}
+                    </Text>
                   </View>
                 ))}
               </View>
             )}
 
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.button} onPress={() => onComplete(task.id)}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => onComplete(task.id)}
+              >
                 <Text style={styles.buttonText}>Completar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, styles.closeButton]} onPress={onClose}>
+              <TouchableOpacity
+                style={[styles.button, styles.closeButton]}
+                onPress={onClose}
+              >
                 <Text style={styles.buttonText}>Cerrar</Text>
               </TouchableOpacity>
             </View>
@@ -48,7 +62,7 @@ export const TaskModal = ({
       </View>
     </View>
   </Modal>
-)
+);
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -102,5 +116,4 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-})
-
+});

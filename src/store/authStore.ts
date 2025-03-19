@@ -9,6 +9,7 @@ import { clearAllData } from '../helpers/ClearAllStore';
 interface authStore {
     user: User;
     accessToken: string;
+    sessionId: string;
     setToken: (value: string) => void;
     removeToken: () => void;
     setUser: (value: User) => void;
@@ -26,7 +27,9 @@ export const useAuthStore = create(
     (set, get) => ({
       user: {} as User,
       accessToken: '',
+      sessionId:'',
       setToken: (value: string) => set({ accessToken: value }),
+      setSessionId: (value: string) => set({ sessionId: value }),
       removeToken: () => set({ accessToken: '' }),
       setUser: (value: User) => set({ user: value }),
       removeUser: () => set({ user: { id: '', username: '', password: '' } }),
